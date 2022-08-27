@@ -3,6 +3,7 @@ package com.iqbalapptest;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
+import android.os.Bundle;
 
 public class MainActivity extends ReactActivity {
 
@@ -13,6 +14,11 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "IqbalApptest";
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(null);
   }
 
   /**
@@ -26,7 +32,11 @@ public class MainActivity extends ReactActivity {
   }
 
   public static class MainActivityDelegate extends ReactActivityDelegate {
-    public MainActivityDelegate(ReactActivity activity, String mainComponentName) {
+
+    public MainActivityDelegate(
+      ReactActivity activity,
+      String mainComponentName
+    ) {
       super(activity, mainComponentName);
     }
 
