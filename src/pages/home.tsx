@@ -1,15 +1,17 @@
 import BottomSheet from '@gorhom/bottom-sheet'
 import { useFocusEffect } from '@react-navigation/native'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, Image, RefreshControl, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FlatList, Image, RefreshControl, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import EmptyState from '../components/emptyState'
 import PlaceHolderCard from '../components/placeholderCard'
-import { getContacts, getDetailContacts } from '../redux/actions/contactAction'
+import PlaceHolderDetailItem from '../components/placeholderDetailItem'
+import { deleteContacts, getContacts, getDetailContacts } from '../redux/actions/contactAction'
 import { colors, gapSize, subtitleStyle, titleStyle, widthSize } from '../utils/constant'
 import { useKeyboard } from '../utils/keyboard'
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Animated from 'react-native-reanimated'
+import { detailContact } from '../redux/reducers/contactReducer'
 
 let initSearchStyle = { backgroundColor: colors.white, width: widthSize - gapSize, marginVertical: gapSize / 2, borderRadius: gapSize, }
 
@@ -22,11 +24,13 @@ const Home = ({ navigation }: HomeProps) => {
     const { isKeyboardVisible } = useKeyboard()
     const searchRef = useRef<any>(null)
     const detailRef = useRef<any>(null);
-    const { lists, loading, detail, detailLoading } = useSelector((state: any) => state.contact)
+    const { lists, loading, detail, detailLoading, detailFailed } = useSelector((state: any) => state.contact)
     const [searchNumber, setSearchNumber] = useState<string>('')
     const [searchStyle, setSearchStyle] = useState<any>(initSearchStyle)
     const [openSearch, setOpenSearch] = useState<boolean>(false)
     const [refreshing, setRefreshing] = useState(false)
+
+    let resVal = lists.map((item: any) => ({ ...item, ref: createRef() }))
 
     useFocusEffect(useCallback(
         () => {
@@ -35,10 +39,10 @@ const Home = ({ navigation }: HomeProps) => {
     ))
 
     useEffect(() => {
-        if (detail?.id) {
-            detailRef?.current?.snapToIndex(1)
+        if (detailFailed) {
+            detailRef?.current?.close()
         }
-    }, [detail])
+    }, [detailFailed])
 
     useEffect(() => {
         if (!isKeyboardVisible) {
@@ -52,9 +56,9 @@ const Home = ({ navigation }: HomeProps) => {
     }, [isKeyboardVisible])
 
     const searchContact = useMemo(() => {
-        let value = lists?.filter((val: any) => val?.firstName?.toLowerCase().includes(searchNumber.toLowerCase()) || val?.lastName?.toLowerCase().includes(searchNumber.toLowerCase()))
+        let value = resVal?.filter((val: any) => val?.firstName?.toLowerCase().includes(searchNumber.toLowerCase()) || val?.lastName?.toLowerCase().includes(searchNumber.toLowerCase()))
         return value
-    }, [searchNumber, lists])
+    }, [searchNumber, resVal])
 
     const snapPoints = useMemo(() => ['25%', '50%'], []);
 
@@ -68,13 +72,19 @@ const Home = ({ navigation }: HomeProps) => {
         setRefreshing(false)
     }
 
+    const deleteContact = (id: string, ref: any) => {
+        ref?.current?.close()
+        dispatch<any>(deleteContacts(id.toString()))
+    }
+
     const getDetail = useCallback((id: any) => {
+        detailRef?.current?.snapToIndex(1)
         dispatch<any>(getDetailContacts(id))
     }, [])
 
-    const renderRightActions = (progress: any, dragX: { interpolate: (arg0: { inputRange: number[]; outputRange: number[] }) => any }) => {
+    const renderRightActions = (progress: any, dragX: { interpolate: (arg0: { inputRange: number[]; outputRange: number[] }) => any }, id: string, ref: any) => {
         return (
-            <TouchableOpacity style={{ backgroundColor: colors.white, justifyContent: 'center', padding: gapSize }} onPress={() => { }}>
+            <TouchableOpacity style={{ backgroundColor: colors.white, justifyContent: 'center', padding: gapSize }} onPress={() => { deleteContact(id, ref) }}>
                 <Animated.Text
                 >
                     Delete
@@ -84,16 +94,18 @@ const Home = ({ navigation }: HomeProps) => {
     };
 
     const renderItem = ({ item, index }: any) => {
-        return <Swipeable renderRightActions={renderRightActions}>
-            <TouchableOpacity onPress={() => {
+        return <Swipeable ref={item?.ref} renderRightActions={(progress, dragx) => renderRightActions(progress, dragx, item.id, item?.ref)}>
+            <TouchableWithoutFeedback onPress={() => {
                 getDetail(item?.id)
-            }} style={styles.renderItemContainer}>
-                <Image source={{ uri: item?.photo === 'N/A' ? `https://ui-avatars.com/api/?name=${item?.firstName}+${item?.lastName}&color=fff&background=random` : item?.photo }} style={styles.renderItemAvatar} />
-                <View>
-                    <Text style={titleStyle}>{`${item?.firstName} ${item?.lastName}`}</Text>
-                    <Text style={subtitleStyle}>{`Age : ${item?.age}`}</Text>
+            }}>
+                <View style={styles.renderItemContainer}>
+                    <Image source={{ uri: item?.photo === 'N/A' ? `https://ui-avatars.com/api/?name=${item?.firstName}+${item?.lastName}&color=fff&background=random` : item?.photo }} style={styles.renderItemAvatar} />
+                    <View>
+                        <Text style={titleStyle}>{`${item?.firstName} ${item?.lastName}`}</Text>
+                        <Text style={subtitleStyle}>{`Age : ${item?.age}`}</Text>
+                    </View>
                 </View>
-            </TouchableOpacity>
+            </TouchableWithoutFeedback>
         </Swipeable>
     }
 
@@ -143,23 +155,29 @@ const Home = ({ navigation }: HomeProps) => {
                 style={styles.sheetContainer}
                 handleStyle={styles.bottomSheetHandle}
                 enablePanDownToClose
+                onClose={() => dispatch(detailContact({ loading: false, data: {} }))}
             >
                 <View style={styles.contentContainer}>
-                    <Image source={{ uri: detail?.photo === 'N/A' ? `https://ui-avatars.com/api/?name=${detail?.firstName}+${detail?.lastName}&color=fff&background=random` : detail?.photo }} style={{ height: 150, width: '90%', borderRadius: gapSize, alignSelf: 'center' }} />
-                    <View style={{ flex: 1, backgroundColor: '#f7f9fa', padding: gapSize / 2, borderBottomLeftRadius: gapSize, borderBottomRightRadius: gapSize }}>
-                        <Text style={titleStyle}>{`Name : ${detail?.firstName} ${detail?.lastName}`}</Text>
-                        <Text style={subtitleStyle}>{`Age : ${detail?.age}`}</Text>
-                        <Text style={[titleStyle, { marginTop: gapSize / 4 }]}>{`About :`}</Text>
-                        <Text style={subtitleStyle}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora odit ullam ipsa non fugiat corrupti accusamus? Nostrum temporibus iure optio culpa, eaque excepturi consequatur amet libero nobis esse aspernatur a?</Text>
-                    </View>
-                    <TouchableOpacity style={styles.btn} onPress={() => {
-                        navigation.navigate('Update', {
-                            data: detail
-                        })
-                        detailRef?.current?.close()
-                    }}>
-                        <Text style={[titleStyle, { color: 'white' }]}>Edit Contact</Text>
-                    </TouchableOpacity>
+
+                    {detailLoading ? <PlaceHolderDetailItem /> : (
+                        <>
+                            <Image source={{ uri: detail?.photo === 'N/A' ? `https://ui-avatars.com/api/?name=${detail?.firstName}+${detail?.lastName}&color=fff&background=random` : detail?.photo }} style={{ height: 150, width: '90%', borderRadius: gapSize, alignSelf: 'center' }} />
+                            <View style={{ flex: 1, backgroundColor: '#f7f9fa', padding: gapSize / 2, borderBottomLeftRadius: gapSize, borderBottomRightRadius: gapSize }}>
+                                <Text style={titleStyle}>{`Name : ${detail?.firstName || ''} ${detail?.lastName || ''}`}</Text>
+                                <Text style={subtitleStyle}>{`Age : ${detail?.age || ''}`}</Text>
+                                <Text style={[titleStyle, { marginTop: gapSize / 4 }]}>{`About :`}</Text>
+                                <Text style={subtitleStyle}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora odit ullam ipsa non fugiat corrupti accusamus? Nostrum temporibus iure optio culpa, eaque excepturi consequatur amet libero nobis esse aspernatur a?</Text>
+                            </View>
+                            <TouchableOpacity style={styles.btn} onPress={() => {
+                                navigation.navigate('Update', {
+                                    data: detail
+                                })
+                                detailRef?.current?.close()
+                            }}>
+                                <Text style={[titleStyle, { color: 'white' }]}>Edit Contact</Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
                 </View>
             </BottomSheet>
         </>

@@ -6,8 +6,8 @@ const contactSlice = createSlice({
         lists: [],
         loading: false,
         failed: '',
-        detailLoading: false,
         detail: {},
+        detailLoading: false,
         detailFailed: '',
         postContactLoading: '',
         postContactSuccess: '',
@@ -35,12 +35,12 @@ const contactSlice = createSlice({
             state.detailLoading = action.payload
         },
         detailContact(state, action) {
-            state.detailLoading = action.payload.loading
             state.detail = action.payload.data
+            state.detailLoading = action.payload.loading
         },
         detailContactFailed(state, action) {
-            state.detailLoading = action.payload.loading
             state.detailFailed = action.payload.failed
+            state.detailLoading = action.payload.loading
         },
         postContactLoading(state, action) {
             state.postContactLoading = action.payload

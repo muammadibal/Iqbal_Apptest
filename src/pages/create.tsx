@@ -5,6 +5,7 @@ import { addContacts } from '../redux/actions/contactAction'
 import { useDispatch, useSelector } from 'react-redux'
 import ImagePicker from 'react-native-image-crop-picker';
 import { shownMessage } from '../utils/shownMessage'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 interface CreateProps {
     navigation: any
@@ -21,7 +22,7 @@ const Create = ({ navigation }: CreateProps) => {
     const [image, setImage] = useState<string>('')
 
     const onSubmit = () => {
-        if (value.firstName.length === 0 || value.lastName.length === 0 || value.age.length === 0) {
+        if (value.firstName.length === 0 || value.lastName.length === 0 || value.age.length === 0 || image.length === 0) {
             return shownMessage({ type: 'warning', description: 'Field cannot empty' })
         }
 
@@ -48,17 +49,21 @@ const Create = ({ navigation }: CreateProps) => {
     return (
         <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}>
             <View style={{ height: 60, width: '100%', backgroundColor: 'white', elevation: 4, flexDirection: 'row', alignItems: 'center', paddingHorizontal: gapSize }}>
-                <TouchableOpacity onPress={() => navigation.goBack()}><Text style={titleStyle}>{'<'}</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <AntDesign name="left" color={colors.black} size={20} />
+                </TouchableOpacity>
                 <Text style={[titleStyle, { marginLeft: gapSize }]}>Add New Contact</Text>
             </View>
 
             <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
                 <TouchableOpacity onPress={() => pickImage()} style={{ marginVertical: gapSize }}>
                     <>
-                        {image.length === 0 ? <View style={{ width: 150, height: 150, borderRadius: 150, backgroundColor: 'grey' }} /> : <Image source={{ uri: image }} style={{ width: 150, height: 150, borderRadius: 150 }} />}
-                        <TouchableOpacity onPress={() => setImage('')} style={{ height: 25, width: 25, borderRadius: 25, backgroundColor: 'red', position: 'absolute', right: 15, bottom: 5 }}>
-                            <Text>-</Text>
-                        </TouchableOpacity>
+                        {image.length === 0 ? <View style={styles.avatarPlaceholder}>
+                            <AntDesign name="user" size={70} color={colors.white} />
+                        </View> : <Image source={{ uri: image }} style={{ width: 150, height: 150, borderRadius: 150 }} />}
+                        {image.length > 0 && <TouchableOpacity onPress={() => setImage('')} style={styles.removeAvatar}>
+                            <AntDesign name="minus" size={20} color='white' />
+                        </TouchableOpacity>}
                     </>
                 </TouchableOpacity>
 
@@ -119,5 +124,24 @@ const styles = StyleSheet.create({
         borderRadius: gapSize,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    avatarPlaceholder: {
+        width: 150,
+        height: 150,
+        borderRadius: 150,
+        backgroundColor: colors.grey,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    removeAvatar: {
+        height: 25,
+        width: 25,
+        borderRadius: 25,
+        backgroundColor: 'red',
+        position: 'absolute',
+        right: 15,
+        bottom: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
     }
 })
