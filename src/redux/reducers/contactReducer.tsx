@@ -5,7 +5,10 @@ const contactSlice = createSlice({
     initialState: {
         lists: [],
         loading: false,
-        failed: ''
+        failed: '',
+        detailLoading: false,
+        detail: {},
+        detailFailed: ''
     },
     reducers: {
         contactLoading(state, action) {
@@ -18,9 +21,20 @@ const contactSlice = createSlice({
         contactFailed(state, action) {
             state.loading = action.payload.loading
             state.failed = action.payload.failed
+        },
+        detailContactLoading(state, action) {
+            state.detailLoading = action.payload
+        },
+        detailContact(state, action) {
+            state.detailLoading = action.payload.loading
+            state.detail = action.payload.data
+        },
+        detailContactFailed(state, action) {
+            state.detailLoading = action.payload.loading
+            state.detailFailed = action.payload.data
         }
     }
 })
 
-export const { contactList, contactLoading, contactFailed } = contactSlice.actions
+export const { contactList, contactLoading, contactFailed, detailContactLoading, detailContact, detailContactFailed } = contactSlice.actions
 export default contactSlice.reducer
