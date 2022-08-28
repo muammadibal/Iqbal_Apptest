@@ -1,49 +1,21 @@
-import { FlatList, Image, RefreshControl, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import BottomSheet from '@gorhom/bottom-sheet'
+import { useFocusEffect } from '@react-navigation/native'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { getContacts, getDetailContacts } from '../redux/actions/contactAction'
+import { FlatList, Image, RefreshControl, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
+import EmptyState from '../components/emptyState'
+import PlaceHolderCard from '../components/placeholderCard'
+import { getContacts, getDetailContacts } from '../redux/actions/contactAction'
 import { colors, gapSize, subtitleStyle, titleStyle, widthSize } from '../utils/constant'
 import { useKeyboard } from '../utils/keyboard'
-import { LineChart } from 'react-native-chart-kit'
-import BottomSheet from '@gorhom/bottom-sheet';
-import PlaceHolderCard from '../components/placeholderCard'
-import EmptyState from '../components/emptyState'
-import { useFocusEffect } from '@react-navigation/native'
 
 let initSearchStyle = { backgroundColor: colors.white, width: widthSize - gapSize, marginVertical: gapSize / 2, borderRadius: gapSize, }
 
-let dataValue: any = {
-    labels: [...Array(7).fill('').map((_, i) => i + 1)],
-    datasets: [
-        {
-            data: [...Array(7).fill('').map((_, i) => Math.floor(Math.random() * 11))],
-            color: (opacity = 1) => `rgba(25,82, 252, ${opacity})`,
-            strokeWidth: 2
-        }
-    ],
+interface HomeProps {
+    navigation: any
 }
 
-const chartConfig = {
-    backgroundColor: "#ffffff",
-    backgroundGradientFrom: "#f7f9fa",
-    backgroundGradientTo: "#f7f9fa",
-    decimalPlaces: 2, // optional, defaults to 2dp
-    color: (opacity = 1) => `rgba(25, 82, 252, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(100, 100, 100, ${opacity})`,
-    barPercentage: 0.5,
-    fillShadowGradientFrom: '#1e55fc',
-    fillShadowGradientFromOpacity: 0.1,
-    fillShadowGradientTo: '#5a83fc',
-    fillShadowGradientToOpacity: 0,
-    propsForDots: {
-        r: "5",
-        strokeWidth: "2",
-        stroke: colors.white,
-    }
-};
-
-
-const Home = () => {
+const Home = ({ navigation }: HomeProps) => {
     const dispatch = useDispatch()
     const { isKeyboardVisible } = useKeyboard()
     const searchRef = useRef<any>(null)
@@ -52,7 +24,6 @@ const Home = () => {
     const [searchNumber, setSearchNumber] = useState<string>('')
     const [searchStyle, setSearchStyle] = useState<any>(initSearchStyle)
     const [openSearch, setOpenSearch] = useState<boolean>(false)
-    const [chartValue, setChartValue] = useState<any>(null)
     const [refreshing, setRefreshing] = useState(false)
 
     useFocusEffect(useCallback(
@@ -106,6 +77,7 @@ const Home = () => {
                 <TextInput ref={searchRef}
                     placeholder="Search..."
                     placeholderTextColor={colors.grey}
+                    value={searchNumber}
                     onChangeText={e => setSearchNumber(e)} style={{ ...searchStyle, alignSelf: 'center', paddingHorizontal: gapSize }} onFocus={() => {
                         setSearchStyle({ backgroundColor: colors.white, width: widthSize, marginTop: 0, marginBottom: gapSize / 2, })
                         setOpenSearch(true)
@@ -139,7 +111,7 @@ const Home = () => {
                 />}
 
 
-                <TouchableOpacity style={styles.fab}>
+                <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Create')}>
                     <Text style={[subtitleStyle, { color: colors.white }]}>Add Contact</Text>
                 </TouchableOpacity>
             </View>
@@ -159,7 +131,12 @@ const Home = () => {
                     <View style={{ flex: 1, backgroundColor: '#f7f9fa', padding: gapSize / 2, borderBottomLeftRadius: gapSize, borderBottomRightRadius: gapSize }}>
                         <Text style={titleStyle}>{`Name : ${detail?.firstName} ${detail?.lastName}`}</Text>
                         <Text style={subtitleStyle}>{`Age : ${detail?.age}`}</Text>
+                        <Text style={[titleStyle, { marginTop: gapSize / 4 }]}>{`About :`}</Text>
+                        <Text style={subtitleStyle}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora odit ullam ipsa non fugiat corrupti accusamus? Nostrum temporibus iure optio culpa, eaque excepturi consequatur amet libero nobis esse aspernatur a?</Text>
                     </View>
+                    <TouchableOpacity style={styles.btn} onPress={() => { }}>
+                        <Text style={[titleStyle, { color: 'white' }]}>Edit Contact</Text>
+                    </TouchableOpacity>
                 </View>
             </BottomSheet>
         </>
@@ -173,9 +150,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         backgroundColor: '#f7f9fa',
         borderRadius: gapSize,
+        flexGrow: 1
     },
     contentContainer: {
-        flex: 1,
+        flexGrow: 1,
         backgroundColor: '#f7f9fa',
         borderBottomLeftRadius: gapSize,
         borderBottomRightRadius: gapSize
@@ -221,5 +199,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         elevation: 4
+    },
+    btn: {
+        flexDirection: 'row',
+        backgroundColor: colors.blue,
+        height: 50,
+        marginVertical: gapSize / 2,
+        marginHorizontal: gapSize,
+        borderRadius: gapSize,
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 })
