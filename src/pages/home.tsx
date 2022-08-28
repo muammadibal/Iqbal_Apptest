@@ -8,6 +8,8 @@ import PlaceHolderCard from '../components/placeholderCard'
 import { getContacts, getDetailContacts } from '../redux/actions/contactAction'
 import { colors, gapSize, subtitleStyle, titleStyle, widthSize } from '../utils/constant'
 import { useKeyboard } from '../utils/keyboard'
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import Animated from 'react-native-reanimated'
 
 let initSearchStyle = { backgroundColor: colors.white, width: widthSize - gapSize, marginVertical: gapSize / 2, borderRadius: gapSize, }
 
@@ -70,6 +72,31 @@ const Home = ({ navigation }: HomeProps) => {
         dispatch<any>(getDetailContacts(id))
     }, [])
 
+    const renderRightActions = (progress: any, dragX: { interpolate: (arg0: { inputRange: number[]; outputRange: number[] }) => any }) => {
+        return (
+            <TouchableOpacity style={{ backgroundColor: colors.white, justifyContent: 'center', padding: gapSize }} onPress={() => { }}>
+                <Animated.Text
+                >
+                    Delete
+                </Animated.Text>
+            </TouchableOpacity>
+        );
+    };
+
+    const renderItem = ({ item, index }: any) => {
+        return <Swipeable renderRightActions={renderRightActions}>
+            <TouchableOpacity onPress={() => {
+                getDetail(item?.id)
+            }} style={styles.renderItemContainer}>
+                <Image source={{ uri: item?.photo === 'N/A' ? `https://ui-avatars.com/api/?name=${item?.firstName}+${item?.lastName}&color=fff&background=random` : item?.photo }} style={styles.renderItemAvatar} />
+                <View>
+                    <Text style={titleStyle}>{`${item?.firstName} ${item?.lastName}`}</Text>
+                    <Text style={subtitleStyle}>{`Age : ${item?.age}`}</Text>
+                </View>
+            </TouchableOpacity>
+        </Swipeable>
+    }
+
     return (
         <>
             <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -90,24 +117,15 @@ const Home = ({ navigation }: HomeProps) => {
                     .fill('')
                     .map((item, index) => {
                         return <PlaceHolderCard key={index} />
-                    }) : <FlatList
+                    }) : <Animated.FlatList
                     data={searchContact}
+                    keyExtractor={(item: any) => item?.id}
                     contentContainerStyle={{
                         flexGrow: 1,
                     }}
                     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => onRefresh()} />}
                     ListEmptyComponent={<EmptyState />}
-                    renderItem={({ item, index }: any) => {
-                        return <TouchableOpacity onPress={() => {
-                            getDetail(item?.id)
-                        }} style={styles.renderItemContainer}>
-                            <Image source={{ uri: item?.photo === 'N/A' ? `https://ui-avatars.com/api/?name=${item?.firstName}+${item?.lastName}&color=fff&background=random` : item?.photo }} style={styles.renderItemAvatar} />
-                            <View>
-                                <Text style={titleStyle}>{`${item?.firstName} ${item?.lastName}`}</Text>
-                                <Text style={subtitleStyle}>{`Age : ${item?.age}`}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    }}
+                    renderItem={renderItem}
                 />}
 
 
@@ -134,7 +152,12 @@ const Home = ({ navigation }: HomeProps) => {
                         <Text style={[titleStyle, { marginTop: gapSize / 4 }]}>{`About :`}</Text>
                         <Text style={subtitleStyle}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora odit ullam ipsa non fugiat corrupti accusamus? Nostrum temporibus iure optio culpa, eaque excepturi consequatur amet libero nobis esse aspernatur a?</Text>
                     </View>
-                    <TouchableOpacity style={styles.btn} onPress={() => { }}>
+                    <TouchableOpacity style={styles.btn} onPress={() => {
+                        navigation.navigate('Update', {
+                            data: detail
+                        })
+                        detailRef?.current?.close()
+                    }}>
                         <Text style={[titleStyle, { color: 'white' }]}>Edit Contact</Text>
                     </TouchableOpacity>
                 </View>

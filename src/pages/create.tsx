@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { colors, gapSize, titleStyle, widthSize } from '../utils/constant'
 import { addContacts } from '../redux/actions/contactAction'
@@ -37,10 +37,11 @@ const Create = ({ navigation }: CreateProps) => {
         ImagePicker.openPicker({
             width: 300,
             height: 400,
-            cropping: true
+            cropping: true,
+            includeBase64: true,
+            mediaType: 'photo'
         }).then(image => {
-            setImage(image.path)
-            // console.log(image);
+            setImage(`data:image/png;base64,${image.data}`)
         });
     }
 
@@ -51,46 +52,50 @@ const Create = ({ navigation }: CreateProps) => {
                 <Text style={[titleStyle, { marginLeft: gapSize }]}>Add New Contact</Text>
             </View>
 
-            <TouchableOpacity onPress={() => pickImage()} style={{ marginVertical: gapSize }}>
-                <>
-                    {image.length === 0 ? <View style={{ width: 150, height: 150, borderRadius: 150, backgroundColor: 'grey' }} /> : <Image source={{ uri: image }} style={{ width: 150, height: 150, borderRadius: 150 }} />}
-                    <TouchableOpacity onPress={() => setImage('')} style={{ height: 25, width: 25, borderRadius: 25, backgroundColor: 'red', position: 'absolute', right: 15, bottom: 5 }}>
-                        <Text>-</Text>
-                    </TouchableOpacity>
-                </>
-            </TouchableOpacity>
+            <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => pickImage()} style={{ marginVertical: gapSize }}>
+                    <>
+                        {image.length === 0 ? <View style={{ width: 150, height: 150, borderRadius: 150, backgroundColor: 'grey' }} /> : <Image source={{ uri: image }} style={{ width: 150, height: 150, borderRadius: 150 }} />}
+                        <TouchableOpacity onPress={() => setImage('')} style={{ height: 25, width: 25, borderRadius: 25, backgroundColor: 'red', position: 'absolute', right: 15, bottom: 5 }}>
+                            <Text>-</Text>
+                        </TouchableOpacity>
+                    </>
+                </TouchableOpacity>
 
-            <TextInput
-                placeholder="Firstname..."
-                placeholderTextColor={colors.grey}
-                value={value.firstName}
-                onChangeText={e => setValue({
-                    ...value,
-                    firstName: e
-                })} style={styles.inputStyle}
-            />
-            <TextInput
-                placeholder="Lastname..."
-                placeholderTextColor={colors.grey}
-                value={value.lastName}
-                onChangeText={e => setValue({
-                    ...value,
-                    lastName: e
-                })} style={styles.inputStyle}
-            />
-            <TextInput
-                placeholder="Age..."
-                placeholderTextColor={colors.grey}
-                value={value.age}
-                onChangeText={e => setValue({
-                    ...value,
-                    age: e
-                })} style={styles.inputStyle}
-            />
-            <TouchableOpacity style={styles.btn} onPress={() => onSubmit()} disabled={postContactLoading}>
-                <Text style={[titleStyle, { color: 'white' }]}>{postContactLoading ? 'Loading...' : 'Submit'}</Text>
-            </TouchableOpacity>
-        </View>
+                <TextInput
+                    placeholder="Firstname..."
+                    placeholderTextColor={colors.grey}
+                    value={value.firstName}
+                    onChangeText={e => setValue({
+                        ...value,
+                        firstName: e
+                    })} style={styles.inputStyle}
+                />
+                <TextInput
+                    placeholder="Lastname..."
+                    placeholderTextColor={colors.grey}
+                    value={value.lastName}
+                    onChangeText={e => setValue({
+                        ...value,
+                        lastName: e
+                    })} style={styles.inputStyle}
+                />
+                <TextInput
+                    placeholder="Age..."
+                    placeholderTextColor={colors.grey}
+                    keyboardType="phone-pad"
+                    value={value.age}
+                    onChangeText={e => setValue({
+                        ...value,
+                        age: e
+                    })} style={styles.inputStyle}
+                />
+                <TouchableOpacity style={styles.btn} onPress={() => onSubmit()} disabled={postContactLoading}>
+                    <Text style={[titleStyle, { color: 'white' }]}>{postContactLoading ? 'Loading...' : 'Submit'}</Text>
+                </TouchableOpacity>
+
+            </ScrollView>
+        </View >
     )
 }
 
