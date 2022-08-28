@@ -2,6 +2,7 @@ import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../pages/home';
 import Create from '../pages/create';
+import Update from '../pages/update';
 
 
 const Routes = () => {
@@ -13,6 +14,7 @@ const Routes = () => {
         }}>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="Create" component={Create} />
+            <Stack.Screen name="Update" component={Update} />
         </Stack.Navigator>
     );
 }
