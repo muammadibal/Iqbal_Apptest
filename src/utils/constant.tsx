@@ -20,6 +20,8 @@ export const colors = {
     black: '#050a0f',
     grey: '#576675',
     white: '#dae2ea',
+    green: '#35a524',
+    red: '#ed3434',
 }
 
 export const titleStyle = {

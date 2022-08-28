@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import Routes from './routes';
 import store from './redux/index'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import FlashMessage from "react-native-flash-message";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
           <Routes />
         </NavigationContainer>
       </Provider>
+      <FlashMessage position="top" />
     </GestureHandlerRootView>
   );
 };
