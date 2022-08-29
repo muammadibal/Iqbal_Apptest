@@ -60,7 +60,7 @@ const Update = ({ navigation, route }: CreateProps) => {
 
             <TouchableOpacity onPress={() => pickImage()} style={{ marginVertical: gapSize }}>
                 <>
-                    {image.length === 0 ? <View style={styles.avatarPlaceholder}>
+                    {image === 'N/A' ? <View style={styles.avatarPlaceholder}>
                         <AntDesign name="user" size={70} color={colors.white} />
                     </View> : <Image source={{ uri: image }} style={{ width: 150, height: 150, borderRadius: 150 }} />}
                     {image.length > 0 && <TouchableOpacity onPress={() => setImage('')} style={styles.removeAvatar}>

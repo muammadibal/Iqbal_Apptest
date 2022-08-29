@@ -1,14 +1,49 @@
-import 'react-native';
 import React from 'react';
 import App from '../src/App';
-import renderer, { create } from 'react-test-renderer';
+import renderer, {create} from 'react-test-renderer';
 import Button from '../src/components/button';
 import Home from '../src/pages/home';
 
-const listsTree = create(<Home />)
+jest.mock('react-native-gesture-handler', () => {
+  // eslint-disable-next-line global-require
+  const View = require('react-native/Libraries/Components/View/View');
+  return {
+    Swipeable: View,
+    DrawerLayout: View,
+    State: {},
+    ScrollView: View,
+    Slider: View,
+    Switch: View,
+    TextInput: View,
+    ToolbarAndroid: View,
+    ViewPagerAndroid: View,
+    DrawerLayoutAndroid: View,
+    WebView: View,
+    NativeViewGestureHandler: View,
+    TapGestureHandler: View,
+    FlingGestureHandler: View,
+    ForceTouchGestureHandler: View,
+    LongPressGestureHandler: View,
+    PanGestureHandler: View,
+    PinchGestureHandler: View,
+    RotationGestureHandler: View,
+    /* Buttons */
+    RawButton: View,
+    BaseButton: View,
+    RectButton: View,
+    BorderlessButton: View,
+    /* Other */
+    FlatList: View,
+    gestureHandlerRootHOC: jest.fn(),
+    Directions: {},
+  };
+});
 
-it('renders lists correctly', () => {
-  expect(listsTree).toMatchSnapshot()
+jest.mock('react-native-reanimated', () => {});
+// jest.mock('react-native-tab-view', () => {});
+
+it('renders correctly', () => {
+  renderer.create(<Home />);
 });
 
 // describe('Button', () => {
