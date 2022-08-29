@@ -13,17 +13,5 @@
         "verbose": false
       }
     ]
-  ],
-  "env": {
-    "development": {
-      "plugins": [
-        [
-          "transform-runtime",
-          {
-            "polyfill": true
-          }
-        ]
-      ]
-    }
-  }
+  ]
 }
