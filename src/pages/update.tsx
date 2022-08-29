@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import ImagePicker from 'react-native-image-crop-picker';
 import { shownMessage } from '../utils/shownMessage'
 import AntDesign from 'react-native-vector-icons/AntDesign'
+import Button from '../components/button'
 
 interface CreateProps {
     navigation: any
@@ -95,9 +96,7 @@ const Update = ({ navigation, route }: CreateProps) => {
                     age: e
                 })} style={styles.inputStyle}
             />
-            <TouchableOpacity style={styles.btn} onPress={() => onSubmit()} disabled={updateContactLoading}>
-                <Text style={[titleStyle, { color: 'white' }]}>{updateContactLoading ? 'Loading...' : 'Submit'}</Text>
-            </TouchableOpacity>
+            <Button loading={updateContactLoading} onPress={() => onSubmit()} />
         </View>
     )
 }
@@ -112,16 +111,6 @@ const styles = StyleSheet.create({
         borderRadius: gapSize,
         alignSelf: 'center',
         paddingHorizontal: gapSize
-    },
-    btn: {
-        flexDirection: 'row',
-        backgroundColor: colors.blue,
-        height: 50,
-        width: widthSize - gapSize,
-        marginVertical: gapSize / 2,
-        borderRadius: gapSize,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     avatarPlaceholder: {
         width: 150,
